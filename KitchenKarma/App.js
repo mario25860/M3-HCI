@@ -29,17 +29,17 @@ export default function App() {
   const fetchData = async () => {
     const options = {
       method: 'GET',
-      url: 'https://www.themealdb.com/api/json/v1/1/search.php',
-      params: { s: 'Arrabiata' },  // Example query for "Arrabiata"
+      url: 'https://www.themealdb.com/api/json/v1/1/list.php',
+      params: { i: 'list' },  // Fetching the list of ingredients
     };
 
     try {
       const response = await axios.request(options);
-      setData(response.data.meals);
+      const sortedData = response.data.meals.sort((a, b) => a.strIngredient.localeCompare(b.strIngredient));
+      setData(sortedData);
+      setLoading(false);
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -53,10 +53,9 @@ export default function App() {
         {loading ? (
           <Text>Loading...</Text>
         ) : (
-          data ? data.map((meal, index) => (
-            <View key={index} style={styles.recipeContainer}>
-              <Text style={styles.recipeTitle}>{meal.strMeal}</Text>
-              <Text>{meal.strInstructions}</Text>
+          data ? data.map((ingredient, index) => (
+            <View key={index} style={styles.ingredientContainer}>
+              <Text style={styles.ingredientName}>{ingredient.strIngredient}</Text>
             </View>
           )) : (
             <Text>No data available</Text>
@@ -80,17 +79,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  recipeContainer: {
-    marginBottom: 20,
+  ingredientContainer: {
+    marginBottom: 10,
     padding: 10,
     borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 5,
     width: '90%',
   },
-  recipeTitle: {
-    fontWeight: 'bold',
-    fontSize: 18,
-    marginBottom: 5,
+  ingredientName: {
+    fontSize: 16,
   },
 });
