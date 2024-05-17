@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const MakeMeal = () => {
+const Profile = () => {
   return (
     <View style={styles.container}>
-      <Text>Make Meal Screen</Text>
+      <Text>Profile Screen</Text>
     </View>
   );
 };
@@ -17,4 +17,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MakeMeal;
+export default Profile;
