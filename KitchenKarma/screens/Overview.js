@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableHighlight} from 'react-native';
 import axios from 'axios';
 
-const Overview = () => {
+const Overview = ({navigation}) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const navigateToGroupsScreen = () => {
+    navigation.navigate('Groups');
+  };
 
   const fetchData = async () => {
     const options = {
@@ -27,8 +31,18 @@ const Overview = () => {
     fetchData();
   }, []);
 
+
   return (
     <View style={styles.container}>
+
+<TouchableHighlight
+          style={styles.button}
+          onPress={navigateToGroupsScreen}
+          underlayColor="#DDDDDD"
+        >
+          <Text style={styles.buttonText}>Go to Groups</Text>
+        </TouchableHighlight>
+
       <ScrollView contentContainerStyle={styles.scrollView}>
         {loading ? (
           <Text>Loading...</Text>
@@ -41,6 +55,7 @@ const Overview = () => {
             <Text>No data available</Text>
           )
         )}
+
       </ScrollView>
     </View>
   );
@@ -68,6 +83,18 @@ const styles = StyleSheet.create({
   },
   ingredientName: {
     fontSize: 16,
+  },
+  button: {
+    backgroundColor: 'blue',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 
