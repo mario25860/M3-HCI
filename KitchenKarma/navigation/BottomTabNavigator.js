@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons'; // Du kannst auch andere Ico
 import Overview from '../screens/Overview';
 import MakeMeal from '../screens/MakeMeal';
 import Profile from '../screens/Profile';
+import Groups from '../screens/Groups';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,6 +21,8 @@ const BottomTabNavigator = () => {
             iconName = focused ? 'restaurant-menu' : 'restaurant-menu';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person';
+          }else if (route.name === 'Groups') { // Hinzufügen des "Groups"-Tabs
+            iconName = focused ? 'group' : 'group'; // Icon für "Groups"-Tab
           }
 
           // Du kannst hier jede Icon-Bibliothek verwenden, z.B. MaterialIcons, FontAwesome etc.
@@ -32,6 +35,7 @@ const BottomTabNavigator = () => {
       <Tab.Screen name="Overview" component={Overview} />
       <Tab.Screen name="Make Meal" component={MakeMeal} />
       <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen name="Groups" component={Groups} />
     </Tab.Navigator>
   );
 };
