@@ -1,29 +1,62 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Button } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Button, Image } from 'react-native';
 
 const Groups = () => {
-    
-  const groups = [
-    { id: 1, name: 'Group 1', members: [{ name: 'John', preferences: ['Vegan', 'Low Calorie'] }, { name: 'Doe', preferences: ['Vegetarian'] }] },
-    { id: 2, name: 'Group 2', members: [{ name: 'Jane', preferences: ['Low Carb'] }, { name: 'Smith', preferences: ['Vegetarian'] }] },
-    { id: 3, name: 'Group 3', members: [{ name: 'Emma', preferences: ['Vegan', 'Low Calorie'] }, { name: 'Johnson', preferences: ['Low Carb'] }] },
-    { id: 4, name: 'Group 4', members: [{ name: 'Sarah', preferences: ['Vegetarian', 'Low Calorie'] }, { name: 'Brown', preferences: ['Low Carb'] }] },
-  ];
-
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [recipes, setRecipes] = useState([]);
+  const [showRecipes, setShowRecipes] = useState(false);
+  const [preferences, setPreferences] = useState('Vegetarian');
+
+  const groups = [
+    { id: 1, name: 'Group 1', members: [{ name: 'John', preferences: ['no preferences'] }, { name: 'Doe', preferences: ['Vegetarian'] }] },
+    // weitere Gruppen hier
+  ];
 
   const selectGroup = (group) => {
     setSelectedGroup(group);
+    setShowRecipes(false); // Rezepte zurücksetzen, wenn eine neue Gruppe ausgewählt wird
+  };
+
+  const generateRecipes = async () => {
+    if (!selectedGroup || !selectedGroup.members) {
+      return;
+    }
+  
+    const hasPreference = (member, preference) => member.preferences.includes(preference);
+  
+    const hasVegetarianRecipes = selectedGroup.members.some(member => hasPreference(member, preferences));
+    if (!hasVegetarianRecipes) {
+      return;
+    }
+  
+    try {
+      const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${preferences}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${preferences} recipes`);
+      }
+  
+      const data = await response.json();
+      if (!data.meals || data.meals.length === 0) {
+        throw new Error(`No ${preferences} recipes found`);
+      }
+  
+      const recipesData = data.meals.map(meal => ({
+        id: meal.idMeal,
+        name: meal.strMeal,
+        imageUrl: meal.strMealThumb
+      }));
+  
+      setRecipes(recipesData);
+      setShowRecipes(true); // Rezepte anzeigen, nachdem sie generiert wurden
+    } catch (error) {
+      console.error('Error generating recipes:', error.message);
+    }
   };
 
   const closeModal = () => {
     setSelectedGroup(null);
-  };
-
-
-  const generateRecipe = () => {
-
-    console.log('Generating recipe for group:', selectedGroup.name);
+    setRecipes([]);
+    setShowRecipes(false);
   };
 
   return (
@@ -44,7 +77,7 @@ const Groups = () => {
       <Modal
         animationType="slide"
         transparent={false}
-        visible={!!selectedGroup}
+        visible={!!selectedGroup && !showRecipes}
         onRequestClose={closeModal}
       >
         <View style={styles.modalContainer}>
@@ -56,8 +89,35 @@ const Groups = () => {
               <Text style={styles.preferences}>{member.preferences.join(', ')}</Text>
             </View>
           ))}
-          <Button title="Generate Recipe for Group" onPress={generateRecipe} />
+          <Button title="Generate Recipes" onPress={generateRecipes} />
           <Button title="Close" onPress={closeModal} />
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={showRecipes}
+        onRequestClose={() => setShowRecipes(false)}
+      >
+        <View style={styles.modalContainer}>
+          <Text style={styles.recipesTitle}>Recipes:</Text>
+          <ScrollView>
+            {recipes.map(recipe => (
+              <TouchableOpacity
+                key={recipe.id}
+                style={styles.recipeItem}
+                onPress={() => {/* Hier kannst du die Aktion definieren, die beim Tippen auf ein Rezept ausgeführt werden soll */}}
+              >
+                <Image
+                  source={{ uri: recipe.imageUrl }}
+                  style={styles.recipeImage}
+                />
+                <Text style={styles.recipeName}>{recipe.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <Button title="Close" onPress={() => setShowRecipes(false)} />
         </View>
       </Modal>
     </ScrollView>
@@ -97,6 +157,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#fff', // Hintergrundfarbe für Modal
   },
   modalTitle: {
     fontSize: 24,
@@ -116,6 +177,25 @@ const styles = StyleSheet.create({
   preferences: {
     fontSize: 14,
     marginBottom: 10,
+  },
+  recipesTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+  },
+  recipeItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  recipeImage: {
+    width: 60,
+    height: 60,
+    marginRight: 10,
+    borderRadius: 10,
+  },
+  recipeName: {
+    fontSize: 16,
   },
 });
 
