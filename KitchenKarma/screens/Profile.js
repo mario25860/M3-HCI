@@ -1,164 +1,238 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, Button, Alert, TouchableOpacity } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'; // Für das umrundete X-Symbol
+
 import Modal from 'react-native-modal';
-import axios from 'axios';
 
-const Profile = () => {
+const ProfileForm = () => {
   const [name, setName] = useState('');
-  const [dietType, setDietType] = useState('No Diet');
-  const [area, setArea] = useState('');
-  const [allergies, setAllergies] = useState([]);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [selectedDiet, setSelectedDiet] = useState('');
+  const [selectedHealth, setSelectedHealth] = useState('');
+  const [selectedCuisine, setSelectedCuisine] = useState('');
+  const [dietModalVisible, setDietModalVisible] = useState(false);
+  const [healthModalVisible, setHealthModalVisible] = useState(false);
+  const [cuisineModalVisible, setCuisineModalVisible] = useState(false);
 
-  const fetchIngredients = async (query) => {
-    try {
-      const response = await axios.get('https://www.themealdb.com/api/json/v1/1/list.php?i=list');
-      const filteredResults = response.data.meals.filter(ingredient =>
-        ingredient.strIngredient.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(filteredResults);
-    } catch (error) {
-      console.error(error);
-    }
+  const diets = [
+    'Balanced',
+    'High-Fiber',
+    'High-Protein',
+    'Low-Carb',
+    'Low-Fat',
+    'Low-Sodium'
+  ];
+
+  const healths = [
+    'Alcohol-Cocktail',
+    'Alcohol-Free',
+    'Celery-Free',
+    'Crustacean-Free',
+    'Dairy-Free',
+    'DASH',
+    'Egg-Free',
+    'Fish-Free',
+    'FODMAP-Free',
+    'Gluten-Free',
+    'Immuno-Supportive',
+    'Keto-Friendly',
+    'Kidney-Friendly',
+    'Kosher',
+    'Low Potassium',
+    'Low Sugar',
+    'Lupine-Free',
+    'Mediterranean',
+    'Mollusk-Free',
+    'Mustard-Free',
+    'No oil added',
+    'Paleo',
+    'Peanut-Free',
+    'Pescatarian',
+    'Pork-Free',
+    'Red-Meat-Free',
+    'Sesame-Free',
+    'Shellfish-Free',
+    'Soy-Free',
+    'Sugar-Conscious',
+    'Sulfite-Free',
+    'Tree-Nut-Free',
+    'Vegan',
+    'Vegetarian',
+    'Wheat-Free'
+  ];
+
+  const cuisines = [
+    'American',
+    'Asian',
+    'British',
+    'Caribbean',
+    'Central Europe',
+    'Chinese',
+    'Eastern Europe',
+    'French',
+    'Greek',
+    'Indian',
+    'Italian',
+    'Japanese',
+    'Korean',
+    'Kosher',
+    'Mediterranean',
+    'Mexican',
+    'Middle Eastern',
+    'Nordic',
+    'South American',
+    'South East Asian',
+    'World+'
+  ];
+
+  const handleProfileCreation = () => {
+    console.log('Name:', name);
+    console.log('Diet:', selectedDiet);
+    console.log('Health:', selectedHealth);
+    console.log('Cuisine:', selectedCuisine);
   };
 
-  useEffect(() => {
-    if (searchTerm) {
-      fetchIngredients(searchTerm);
-    } else {
-      setSearchResults([]);
-    }
-  }, [searchTerm]);
-
-  const saveProfile = () => {
-    Alert.alert('Profile Saved', `Name: ${name}\nDiet Type: ${dietType}\nArea: ${area}\nAllergies & Dislikes: ${allergies.join(', ')}`);
-  };
-
-  const addAllergy = (item) => {
-    setAllergies([...allergies, item.strIngredient]);
-    setModalVisible(false);
-    setSearchTerm('');
-    setSearchResults([]);
-  };
+  const renderModalItems = (options, setSelectedValue) => (
+    <ScrollView>
+      {options.map((option, index) => (
+        <TouchableOpacity
+          key={index}
+          style={styles.modalItem}
+          onPress={() => {
+            setSelectedValue(option);
+            setDietModalVisible(false);
+            setHealthModalVisible(false);
+            setCuisineModalVisible(false);
+          }}
+        >
+          <Text>{option}</Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Name:</Text>
-      <TextInput
-        style={styles.input}
-        value={name}
-        onChangeText={setName}
-        placeholder="Enter your name"
-      />
-      <Text style={styles.label}>Diet Type:</Text>
-      <Picker
-        selectedValue={dietType}
-        style={styles.picker}
-        onValueChange={(itemValue) => setDietType(itemValue)}
-      >
-        <Picker.Item label="No Diet" value="" />
-        <Picker.Item label="Vegan" value="Vegan" />
-        <Picker.Item label="Vegetarian" value="Vegetarian" />
-      </Picker>
-      <Text style={styles.label}>Preferred Cuisine:</Text>
-      <Picker
-        selectedValue={area}
-        style={styles.picker}
-        onValueChange={(itemValue) => setArea(itemValue)}
-      >
-        <Picker.Item label="Select Area - no favorite" value="" />
-        <Picker.Item label="American" value="American" />
-        <Picker.Item label="British" value="British" />
-        <Picker.Item label="Canadian" value="Canadian" />
-        <Picker.Item label="Chinese" value="Chinese" />
-        <Picker.Item label="French" value="French" />
-        <Picker.Item label="Italian" value="Italian" />
-        <Picker.Item label="Japanese" value="Japanese" />
-        <Picker.Item label="Mexican" value="Mexican" />
-        <Picker.Item label="Thai" value="Thai" />
-      </Picker>
-      <Text style={styles.label}>Allergies & Dislikes:</Text>
-      <FlatList
-        data={allergies}
-        renderItem={({ item }) => <Text style={styles.allergyItem}>{item}</Text>}
-        keyExtractor={(item, index) => index.toString()}
-      />
-      <View style={styles.buttonContainer}>
-        <Button title="Add Allergy/Dislike" onPress={() => setModalVisible(true)} color="darkred" />
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button title="Save Profile" onPress={saveProfile} color="darkred" />
-      </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={styles.label}>Name:</Text>
+        <TextInput
+          style={styles.input}
+          value={name}
+          onChangeText={setName}
+          placeholder="Enter your name"
+        />
 
-      <Modal isVisible={isModalVisible}>
-        <View style={styles.modalContent}>
-          <TextInput
-            style={styles.input}
-            placeholder="Search for an ingredient"
-            value={searchTerm}
-            onChangeText={setSearchTerm}
-          />
-          {searchResults.length > 0 ? (
-            <FlatList
-              data={searchResults}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => addAllergy(item)}>
-                  <Text style={styles.ingredientItem}>{item.strIngredient}</Text>
-                </TouchableOpacity>
-              )}
-              keyExtractor={(item) => item.idIngredient}
-            />
-          ) : (
-            <Text>No results found</Text>
-          )}
-          <Button title="Close" onPress={() => setModalVisible(false)} />
-        </View>
-      </Modal>
-    </View>
+        <Text style={styles.label}>Diet:</Text>
+        <TouchableOpacity style={styles.dropdownContainer} onPress={() => setDietModalVisible(true)}>
+          <Text style={styles.dropdownText}>{selectedDiet || 'Choose Diet'}</Text>
+        </TouchableOpacity>
+        
+        <Text style={styles.label}>Health:</Text>
+        <TouchableOpacity style={styles.dropdownContainer} onPress={() => setHealthModalVisible(true)}>
+          <Text style={styles.dropdownText}>{selectedHealth || 'Choose Health'}</Text>
+        </TouchableOpacity>
+        
+        <Text style={styles.label}>Cuisine:</Text>
+        <TouchableOpacity style={styles.dropdownContainer} onPress={() => setCuisineModalVisible(true)}>
+          <Text style={styles.dropdownText}>{selectedCuisine || 'Choose Cuisine'}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={handleProfileCreation}>
+          <Text style={styles.buttonText}>Create Profile</Text>
+        </TouchableOpacity>
+
+        <Modal visible={dietModalVisible} animationType="slide">
+          <View style={styles.modalContainer}>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setDietModalVisible(false)}>
+              <Ionicons name="close-circle-outline" size={24} color="black" />
+            </TouchableOpacity>
+            {renderModalItems(diets, setSelectedDiet)}
+          </View>
+        </Modal>
+
+        <Modal visible={healthModalVisible} animationType="slide">
+          <View style={styles.modalContainer}>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setHealthModalVisible(false)}>
+              <Ionicons name="close-circle-outline" size={24} color="black" />
+            </TouchableOpacity>
+            {renderModalItems(healths, setSelectedHealth)}
+          </View>
+        </Modal>
+
+        <Modal visible={cuisineModalVisible} animationType="slide">
+          <View style={styles.modalContainer}>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setCuisineModalVisible(false)}>
+              <Ionicons name="close-circle-outline" size={24} color="black" />
+            </TouchableOpacity>
+            {renderModalItems(cuisines, setSelectedCuisine)}
+          </View>
+        </Modal>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollContainer: {
     padding: 20,
-    justifyContent: 'center',
   },
   label: {
     fontSize: 16,
-    marginVertical: 10,
+    fontWeight: 'bold',
+    marginTop: 10,
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
     padding: 10,
-    fontSize: 16,
-    marginBottom: 10,
+    marginTop: 5,
+    marginBottom: 15,
   },
-  picker: {
-    height: 50,
-    width: '100%',
-  },
-  allergyItem: {
+  dropdownContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
     padding: 10,
+    marginBottom: 15,
+  },
+  dropdownText: {
     fontSize: 16,
   },
-  modalContent: {
-    backgroundColor: 'white',
+  button: {
+    backgroundColor: 'blue',
+    borderRadius: 5,
+    paddingVertical: 15,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
     padding: 20,
-    borderRadius: 10,
   },
-  ingredientItem: {
-    padding: 10,
-    fontSize: 16,
+  modalItem: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    width: '100%',
+    alignItems: 'center',
   },
-  buttonContainer: {
-    marginVertical: 10,
+  closeButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
   },
 });
 
-export default Profile;
+export default ProfileForm;
