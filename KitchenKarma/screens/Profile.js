@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react';
+// src/screens/Profile.js
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, StyleSheet, FlatList, Button, Alert, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import Modal from 'react-native-modal';
 import axios from 'axios';
+import { AppContext } from '../context/AppContext';
 
 const Profile = () => {
-  const [name, setName] = useState('');
-  const [dietType, setDietType] = useState('No Diet');
-  const [area, setArea] = useState('');
-  const [allergies, setAllergies] = useState([]);
-  const [isModalVisible, setModalVisible] = useState(false);
+  const { profile, setProfile } = useContext(AppContext);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [isModalVisible, setModalVisible] = useState(false);
 
   const fetchIngredients = async (query) => {
     try {
@@ -34,11 +33,14 @@ const Profile = () => {
   }, [searchTerm]);
 
   const saveProfile = () => {
-    Alert.alert('Profile Saved', `Name: ${name}\nDiet Type: ${dietType}\nArea: ${area}\nAllergies & Dislikes: ${allergies.join(', ')}`);
+    Alert.alert('Profile Saved', `Name: ${profile.name}\nDiet Type: ${profile.dietType}\nArea: ${profile.area}\nAllergies & Dislikes: ${profile.allergies.join(', ')}`);
   };
 
   const addAllergy = (item) => {
-    setAllergies([...allergies, item.strIngredient]);
+    setProfile({
+      ...profile,
+      allergies: [...profile.allergies, item.strIngredient]
+    });
     setModalVisible(false);
     setSearchTerm('');
     setSearchResults([]);
@@ -49,15 +51,15 @@ const Profile = () => {
       <Text style={styles.label}>Name:</Text>
       <TextInput
         style={styles.input}
-        value={name}
-        onChangeText={setName}
+        value={profile.name}
+        onChangeText={(name) => setProfile({ ...profile, name })}
         placeholder="Enter your name"
       />
       <Text style={styles.label}>Diet Type:</Text>
       <Picker
-        selectedValue={dietType}
+        selectedValue={profile.dietType}
         style={styles.picker}
-        onValueChange={(itemValue) => setDietType(itemValue)}
+        onValueChange={(dietType) => setProfile({ ...profile, dietType })}
       >
         <Picker.Item label="No Diet" value="" />
         <Picker.Item label="Vegan" value="Vegan" />
@@ -65,9 +67,9 @@ const Profile = () => {
       </Picker>
       <Text style={styles.label}>Preferred Cuisine:</Text>
       <Picker
-        selectedValue={area}
+        selectedValue={profile.area}
         style={styles.picker}
-        onValueChange={(itemValue) => setArea(itemValue)}
+        onValueChange={(area) => setProfile({ ...profile, area })}
       >
         <Picker.Item label="Select Area - no favorite" value="" />
         <Picker.Item label="American" value="American" />
@@ -82,7 +84,7 @@ const Profile = () => {
       </Picker>
       <Text style={styles.label}>Allergies & Dislikes:</Text>
       <FlatList
-        data={allergies}
+        data={profile.allergies}
         renderItem={({ item }) => <Text style={styles.allergyItem}>{item}</Text>}
         keyExtractor={(item, index) => index.toString()}
       />
