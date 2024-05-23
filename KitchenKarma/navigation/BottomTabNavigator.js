@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { MaterialIcons } from '@expo/vector-icons'; // Du kannst auch andere Icon Libraries verwenden
-import Overview from '../screens/Overview';
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons'; // Du kannst auch andere Icon Libraries verwenden
+import MyFridge from '../screens/MyFridge';
 import MakeMeal from '../screens/MakeMeal';
 import Profile from '../screens/Profile';
 import Groups from '../screens/Groups';
@@ -14,28 +14,32 @@ const BottomTabNavigator = () => {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
+          let IconComponent;
 
-          if (route.name === 'Overview') {
-            iconName = focused ? 'home' : 'home';
+          if (route.name === 'My Fridge') {
+            iconName = focused ? 'fridge' : 'fridge-outline';
+            IconComponent = MaterialCommunityIcons; 
           } else if (route.name === 'Make Meal') {
             iconName = focused ? 'restaurant-menu' : 'restaurant-menu';
+            IconComponent = MaterialIcons; 
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person';
-          }else if (route.name === 'Groups') { // Hinzufügen des "Groups"-Tabs
-            iconName = focused ? 'group' : 'group'; // Icon für "Groups"-Tab
+            IconComponent = MaterialIcons; 
+          } else if (route.name === 'Groups') {
+            iconName = focused ? 'group' : 'group';
+            IconComponent = MaterialIcons; 
           }
 
-          // Du kannst hier jede Icon-Bibliothek verwenden, z.B. MaterialIcons, FontAwesome etc.
-          return <MaterialIcons name={iconName} size={size} color={color} />;
+          return <IconComponent name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: 'tomato',
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      <Tab.Screen name="Overview" component={Overview} />
+      <Tab.Screen name="Groups" component={Groups} />
+      <Tab.Screen name="My Fridge" component={MyFridge} />
       <Tab.Screen name="Make Meal" component={MakeMeal} />
       <Tab.Screen name="Profile" component={Profile} />
-      <Tab.Screen name="Groups" component={Groups} />
     </Tab.Navigator>
   );
 };
