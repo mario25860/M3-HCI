@@ -5,7 +5,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const Groups = () => {
   return (
     <View style={styles.container}>
-      <Text>My Fridge Screen</Text>
+      <Text>Groups Screen</Text>
     </View>
   );
 };

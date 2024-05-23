@@ -1,4 +1,3 @@
-// src/screens/Profile.js
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, StyleSheet, FlatList, Button, Alert, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';

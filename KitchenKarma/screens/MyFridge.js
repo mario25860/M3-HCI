@@ -1,8 +1,6 @@
-// src/screens/MyFridge.js
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import axios from 'axios';
-import _ from 'lodash';
 import { AppContext } from '../context/AppContext';
 
 const MyFridge = () => {
@@ -11,33 +9,29 @@ const MyFridge = () => {
   const { fridge, setFridge } = useContext(AppContext);
 
   useEffect(() => {
-    if (query.length > 0) {
-      const debouncedSearch = _.debounce(searchIngredients, 300);
-      debouncedSearch();
-      return () => {
-        debouncedSearch.cancel();
-      };
-    } else {
-      setSearchResults([]);
-    }
-  }, [query]);
+    fetchAllIngredients();
+  }, []);
 
-  const searchIngredients = async () => {
-    if (query.trim() === '') {
-      setSearchResults([]);
-      return;
-    }
-
+  const fetchAllIngredients = async () => {
     try {
-      const response = await axios.get(`https://www.themealdb.com/api/json/v1/1/list.php?i=list`);
+      const response = await axios.get('https://www.themealdb.com/api/json/v2/9973533/list.php?i=list');
       const ingredients = response.data.meals.map(meal => meal.strIngredient);
-      const filteredIngredients = ingredients.filter(ingredient =>
-        ingredient.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(filteredIngredients);
+      setSearchResults(ingredients);
     } catch (error) {
       console.error('Error fetching data:', error.response ? error.response.data : error.message);
     }
+  };
+
+  const searchIngredients = async (query) => {
+    if (query.trim() === '') {
+      fetchAllIngredients();
+      return;
+    }
+
+    const filteredIngredients = searchResults.filter(ingredient =>
+      ingredient.toLowerCase().includes(query.toLowerCase())
+    );
+    setSearchResults(filteredIngredients);
   };
 
   const addToFridge = (ingredient) => {
@@ -45,8 +39,6 @@ const MyFridge = () => {
     if (!fridge.includes(formattedIngredient)) {
       setFridge([...fridge, formattedIngredient]);
     }
-    setQuery('');
-    setSearchResults([]);
   };
 
   return (
@@ -55,19 +47,20 @@ const MyFridge = () => {
       <TextInput
         style={styles.input}
         value={query}
-        onChangeText={setQuery}
+        onChangeText={(text) => {
+          setQuery(text);
+          searchIngredients(text);
+        }}
         placeholder="Enter ingredient name"
       />
 
-      {searchResults.length > 0 && (
-        <ScrollView style={styles.resultsContainer}>
-          {searchResults.map((result, index) => (
-            <TouchableOpacity key={index} style={styles.resultItem} onPress={() => addToFridge(result)}>
-              <Text>{result}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      )}
+      <ScrollView style={styles.resultsContainer}>
+        {searchResults.map((result, index) => (
+          <TouchableOpacity key={index} style={styles.resultItem} onPress={() => addToFridge(result)}>
+            <Text>{result}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
       <Text style={styles.fridgeTitle}>Fridge Contents:</Text>
       <ScrollView style={styles.fridgeContainer}>
