@@ -1,18 +1,20 @@
+// src/context/AppContext.js
 import React, { createContext, useState } from 'react';
 
 export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  const [fridge, setFridge] = useState([]);
   const [profile, setProfile] = useState({
     name: '',
     dietType: '',
     area: '',
     allergies: [],
   });
+  const [fridge, setFridge] = useState([]);
+  const [groups, setGroups] = useState([]);
 
   return (
-    <AppContext.Provider value={{ fridge, setFridge, profile, setProfile }}>
+    <AppContext.Provider value={{ profile, setProfile, fridge, setFridge, groups, setGroups }}>
       {children}
     </AppContext.Provider>
   );
