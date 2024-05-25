@@ -4,6 +4,7 @@ import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons'; // D
 import MyFridge from '../screens/MyFridge';
 import MakeMeal from '../screens/MakeMeal';
 import Profile from '../screens/Profile';
+import ProfileDisplayScreen from '../screens/ProfileSaved';
 import Groups from '../screens/Groups';
 
 const Tab = createBottomTabNavigator();
@@ -22,14 +23,13 @@ const BottomTabNavigator = () => {
           } else if (route.name === 'Make Meal') {
             iconName = focused ? 'restaurant-menu' : 'restaurant-menu';
             IconComponent = MaterialIcons; 
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person';
-            IconComponent = MaterialIcons; 
           } else if (route.name === 'Groups') {
             iconName = focused ? 'group' : 'group';
             IconComponent = MaterialIcons; 
+          } else if (route.name === 'ProfileDisplay') {
+            iconName = focused ? 'person' : 'person';
+            IconComponent = MaterialIcons; 
           }
-
           return <IconComponent name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: 'tomato',
@@ -39,7 +39,7 @@ const BottomTabNavigator = () => {
       <Tab.Screen name="Groups" component={Groups} />
       <Tab.Screen name="My Fridge" component={MyFridge} />
       <Tab.Screen name="Make Meal" component={MakeMeal} />
-      <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen name="ProfileDisplay" component={ProfileDisplayScreen} />
     </Tab.Navigator>
   );
 };

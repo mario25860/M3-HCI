@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Für das umrundete X-Symbol
+import { useProfile } from './ProfileContext';
 
 import Modal from 'react-native-modal';
 
-const ProfileForm = () => {
+const ProfileForm = ({navigation}) => {
+  const { profile, updateProfile } = useProfile();
   const [name, setName] = useState('');
   const [selectedDiet, setSelectedDiet] = useState('');
   const [selectedHealth, setSelectedHealth] = useState('');
@@ -12,6 +14,13 @@ const ProfileForm = () => {
   const [dietModalVisible, setDietModalVisible] = useState(false);
   const [healthModalVisible, setHealthModalVisible] = useState(false);
   const [cuisineModalVisible, setCuisineModalVisible] = useState(false);
+
+  const handleSignUp = () => {
+    if (name.trim() !== '') {
+      console.log('Sign Up button pressed');
+      navigation.navigate('ProfileForm');
+    }
+  };
 
   const diets = [
     'Balanced',
@@ -85,10 +94,22 @@ const ProfileForm = () => {
   ];
 
   const handleProfileCreation = () => {
+    const newProfile = { name, selectedDiet, selectedHealth, selectedCuisine };
+    updateProfile(newProfile);
+    navigation.navigate(`ProfileConfirmation`);
+  };
+
+  const logProfile = () => {
     console.log('Name:', name);
     console.log('Diet:', selectedDiet);
     console.log('Health:', selectedHealth);
     console.log('Cuisine:', selectedCuisine);
+  };
+
+  const handleEatEverything = () => {
+    setSelectedDiet('');
+    setSelectedHealth('');
+    setSelectedCuisine('');
   };
 
   const renderModalItems = (options, setSelectedValue) => (
@@ -136,9 +157,21 @@ const ProfileForm = () => {
           <Text style={styles.dropdownText}>{selectedCuisine || 'Choose Cuisine'}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={handleProfileCreation}>
-          <Text style={styles.buttonText}>Create Profile</Text>
+        <TouchableOpacity 
+          style={styles.eatEverythingButton} 
+          onPress={handleEatEverything}>
+          <Text style={styles.buttonText}>I eat everything</Text>
+          <Ionicons name="checkmark-circle-outline" size={40} color="green" />
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.signUpButton, name.trim() === '' && styles.disabledButton]}
+          onPress={(handleSignUp, handleProfileCreation)}
+          disabled={name.trim() === ''}
+        >
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+
 
         <Modal visible={dietModalVisible} animationType="slide">
           <View style={styles.modalContainer}>
@@ -203,7 +236,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    backgroundColor: 'blue',
+    backgroundColor: 'black',
     borderRadius: 5,
     paddingVertical: 15,
     alignItems: 'center',
@@ -213,6 +246,16 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  eatEverythingButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'lightgrey',
+    borderRadius: 5,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    marginBottom: 20,
   },
   modalContainer: {
     flex: 1,
@@ -232,6 +275,22 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 20,
     right: 20,
+  },
+  signUpButton: {
+    backgroundColor: '#5C7AEA',
+    borderRadius: 25,
+    paddingVertical: 15,
+    paddingHorizontal: 50,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
   },
 });
 
